@@ -3,18 +3,18 @@ const db = require('../lib/db_connect');
 const Schema = mongoose.Schema;
 
 const UserSchema = new db.Schema({
-  username: {
+  userName: {
     type:String,
     required: true,
     trim: true
   },
-  email: {
+  userEmail: {
     type: String,
     required: true,
     unique: true,
     trim:true
   },
-  password: {
+  userPassword: {
     type: String,
     required:true,
     trim: true

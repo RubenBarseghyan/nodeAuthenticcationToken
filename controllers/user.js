@@ -4,20 +4,24 @@ const jwt = require('jsonwebtoken');
 const errorHnadler = require('../err_utils/errorHandler');
 
 module.exports.login = async (req, res)=>{
-  const conditate = await User.findOne({email:req.body.email});
+
+  const conditate = await User.findOne({userEmail:req.body.userEmail});
   if(conditate){
     //there is user
-    const passwordRezult = bcrypt.compareSync(req.body.password, conditate.password);
+    const passwordRezult = bcrypt.compareSync(req.body.userPassword, conditate.userPassword);
     if(passwordRezult){
       //the password is matching hash codes
       const token = jwt.sign({
-        email:conditate.email,
+        userEmail:conditate.userEmail,
         userId:conditate._id,
         role: conditate.role,
       }, 'secret_key', {expiresIn: 60*60}); //1 hour
       res.status(200).json({
         token: `Bearer ${token}`,
-        conditate// th rule to send token to front
+        userId: conditate._id,
+        userName: conditate.userName,
+        userEmail: conditate.userEmail,
+        role: conditate.role
       });
     } else {
       res.status(401).json({
@@ -33,30 +37,37 @@ module.exports.login = async (req, res)=>{
 }
 
 module.exports.register = async function (req,res){
-  const conditate = await User.findOne({email:req.body.email});
-  if(conditate){
+  const conditate = await User.findOne({userEmail:req.body.userEmail});
+  if(req.body.userPassword !==req.body.userPasswordConfirm){
+    res.status(409).json({
+      message: "the password and Comfirm password daesn't matching"
+    });
+  } else if(conditate){
     //there is user with that email
     res.status(409).json({
       message:"try another email its busy"
     });
   } else {
     const salt = bcrypt.genSaltSync(10);
-    const password = req.body.password;
+    const password = req.body.userPassword;
     const user = new User({
-      username: req.body.username,
-      email:req.body.email,
-      password: bcrypt.hashSync(password, salt) // when save in database save in hash
+      userName: req.body.userName,
+      userEmail:req.body.userEmail,
+      userPassword: bcrypt.hashSync(password, salt) // when save in database save in hash
     });
     try{
       await user.save();
       const token = jwt.sign({
-        email: user.email,
+        userEmail: user.email,
         userId: user._id,
         role: user.role,
       }, 'secret_key', {expiresIn: 60*60});
       res.status(201).json({
-        user,
         token: `Bearer ${token}`,
+        userId: user._id,
+        userName: user.userName,
+        userEmail: user.userEmail,
+        role: user.role
       });
     } catch(e){
       errorHnadler(res, e);
