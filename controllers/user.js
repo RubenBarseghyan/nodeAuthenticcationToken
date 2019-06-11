@@ -15,13 +15,11 @@ module.exports.login = async (req, res)=>{
         userEmail:conditate.userEmail,
         userId:conditate._id,
         role: conditate.role,
-      }, 'secret_key', {expiresIn: 60*60}); //1 hour
+      }, 'secret_key', {expiresIn: 60*600}); //1 hour
       res.status(200).json({
         token: `Bearer ${token}`,
-        userId: conditate._id,
-        userName: conditate.userName,
-        userEmail: conditate.userEmail,
         role: conditate.role
+        // th rule to send token to front
       });
     } else {
       res.status(401).json({
@@ -36,41 +34,63 @@ module.exports.login = async (req, res)=>{
   }
 }
 
-module.exports.register = async function (req,res){
+module.exports.register = async (req,res) => {
   const conditate = await User.findOne({userEmail:req.body.userEmail});
-  if(req.body.userPassword !==req.body.userPasswordConfirm){
-    res.status(409).json({
-      message: "the password and Comfirm password daesn't matching"
-    });
-  } else if(conditate){
+  console.log(conditate, 'uuuuuuuuuuuuuuu');
+  if(conditate){
     //there is user with that email
     res.status(409).json({
       message:"try another email its busy"
     });
   } else {
     const salt = bcrypt.genSaltSync(10);
-    const password = req.body.userPassword;
+    const userPassword = req.body.userPassword;
     const user = new User({
       userName: req.body.userName,
       userEmail:req.body.userEmail,
-      userPassword: bcrypt.hashSync(password, salt) // when save in database save in hash
+      userPassword: bcrypt.hashSync(userPassword, salt) // when save in database save in hash
     });
     try{
       await user.save();
       const token = jwt.sign({
-        userEmail: user.email,
+        userEmail: user.userEmail,
         userId: user._id,
         role: user.role,
       }, 'secret_key', {expiresIn: 60*60});
       res.status(201).json({
         token: `Bearer ${token}`,
-        userId: user._id,
-        userName: user.userName,
-        userEmail: user.userEmail,
         role: user.role
       });
     } catch(e){
       errorHnadler(res, e);
     }
+  }
+}
+
+module.exports.getAllUsers = async function(req, res){
+  try {
+    const data = await User.findAsync({}, {userName:1, userEmail:1, role:1});
+    res.status(201).json(data);
+  } catch (e) {
+    errorHnadler(res, e);
+    }
+}
+
+module.exports.getAllUsers = async function(req, res){
+  try {
+    const data = await User.findAsync({}, {userName:1, userEmail:1, role:1});
+    res.status(201).json(data);
+  } catch (e) {
+    errorHnadler(res, e);
+    }
+}
+
+
+module.exports.getUsersLimitbyStr = async function(req, res){
+  console.log(req.body);
+  try {
+
+  } catch (e) {
+    errorHandler(res, e);
   }
 }

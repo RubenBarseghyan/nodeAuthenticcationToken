@@ -1,0 +1,6 @@
+{
+  "secret":"secret_key",
+  "refreshSecret": "refresh_secret_key",
+  "tokenLife":3000,
+  "refreshTokenLife":3000
+}
