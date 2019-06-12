@@ -76,21 +76,16 @@ module.exports.getAllUsers = async function(req, res){
     }
 }
 
-module.exports.getAllUsers = async function(req, res){
-  try {
-    const data = await User.findAsync({}, {userName:1, userEmail:1, role:1});
-    res.status(201).json(data);
-  } catch (e) {
-    errorHnadler(res, e);
-    }
-}
-
-
 module.exports.getUsersLimitbyStr = async function(req, res){
-  console.log(req.body);
+  let search = req.body.data;
   try {
+  const data = await User.findAsync({userName: new RegExp(search,'i')});
+  const sendData = data.map((elem) => {
+    return elem.userName;
+  });
+  res.status(201).json(sendData);
 
   } catch (e) {
-    errorHandler(res, e);
+    // errorHandler(res, e);
   }
 }
