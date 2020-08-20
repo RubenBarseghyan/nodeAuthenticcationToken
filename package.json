@@ -9,7 +9,7 @@
   "author": "Ruben Barseghyan",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.5",
+    "bcrypt": "^5.0.0",
     "bcryptjs": "^2.4.3",
     "blubird": "0.0.1-security",
     "body-parser": "^1.18.3",
